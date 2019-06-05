@@ -128,13 +128,29 @@
     // --------------------------------------------------------------
     //
     // test if a specific major diagonal on this board contains a conflict
-    hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+    hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow, row) {
+      let count = 0;
+      let colIndex = majorDiagonalColumnIndexAtFirstRow;
+      let rows = this.rows();
+      const board = this.rows();
+      for(let i = row; i < board.length; i++){
+        console.log(i, colIndex, ': ', board[i][colIndex]);
+        if (board[i][colIndex]) count++;
+        colIndex++
+      }
+      return count > 1;
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      return false; // fixme
+      let result = false;
+      const board = this.rows();
+      for (let i = 0; i < board.length; i++){
+        for (let j = 0; j < board.length; j++){
+          result = this.hasMajorDiagonalConflictAt(j, i) || result;
+        }
+      }
+      return result;
     },
 
 
@@ -143,13 +159,29 @@
     // --------------------------------------------------------------
     //
     // test if a specific minor diagonal on this board contains a conflict
-    hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+    hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow, row) {
+      let count = 0;
+      let colIndex = minorDiagonalColumnIndexAtFirstRow;
+      let rows = this.rows();
+      const board = this.rows();
+      for(let i = row; i < board.length; i++){
+        console.log(i, colIndex, ': ', board[i][colIndex]);
+        if (board[i][colIndex]) count++;
+        colIndex--
+      }
+      return count > 1;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return false; // fixme
+      let result = false;
+      const board = this.rows();
+      for (let i = 0; i < board.length; i++){
+        for (let j = 0; j < board.length; j++){
+          result = this.hasMinorDiagonalConflictAt(j, i) || result;
+        }
+      }
+      return result;
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
