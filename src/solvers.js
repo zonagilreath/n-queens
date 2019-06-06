@@ -13,18 +13,14 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
-
+let rooksCache = {};
+let queensCache = {};
 
 window.findNRooksSolution = function(n) {
-  solution = [];
-  findPerms(n, 0, solution);
-  for(let matrix of solution){
-    const newBoard = new Board(matrix);
-    if(!newBoard.hasAnyRooksConflicts()){
-      console.log('hi');
-      return matrix;
-    }
-  }
+  solutions = [];
+  findPerms(n, 0, solutions, 'rooks');
+  rooksCache[n] = solutions;
+  solution = JSON.parse(solutions[0])
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
@@ -32,7 +28,7 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = rooksCache[n].length; //fixme
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
@@ -40,7 +36,10 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
+  solutions = [];
+  findPerms(n, 0, solutions, 'queens');
+  queensCache = solutions;
+  solution = JSON.parse(solutions[0])
 
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
   return solution;
@@ -48,7 +47,7 @@ window.findNQueensSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = queensCache.length; //fixme
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
@@ -56,22 +55,35 @@ window.countNQueensSolutions = function(n) {
 
 
 
-function findPerms (n, depth, solution){
-  const newBoard = new Board({n: n});
+function findPerms (n, depth, solution, conflictType, board){
+  if (board === undefined) board = new Board({n: n});
   if(depth === n - 1){
     for(let i = 0; i < n; i++){
-      newBoard.togglePiece(depth, i);
-      console.log('in the base case!');
-      solution.push(newBoard.rows());
-      newBoard.togglePiece(depth, i);
+      board.togglePiece(depth, i);
+      let hasConflicts = true;
+      if (conflictType === 'rooks'){
+        hasConflicts = board.hasAnyRooksConflicts();
+      }else if (conflictType === 'queens'){
+        hasConflicts = board.hasAnyQueensConflicts();
+      }
+      if (!hasConflicts){
+        let boardCopy = JSON.stringify(board.rows());
+        solution.push(boardCopy);
+      }
+      board.togglePiece(depth, i);
     }
   }
   else{
     for(let i = 0; i < n; i++){
-      newBoard.togglePiece(depth, i);
-      findPerms(n, depth + 1, solution);
-      newBoard.togglePiece(depth, i);
+      board.togglePiece(depth, i);
+      findPerms(n, depth + 1, solution, conflictType, board);
+      board.togglePiece(depth, i);
     }
   }
 }
+
+
+
+
+
 
