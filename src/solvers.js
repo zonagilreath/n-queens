@@ -37,7 +37,18 @@ window.countNRooksSolutions = function(n) {
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
   solutions = [];
-  findPerms(n, 0, solutions, 'queens');
+  // findPerms(n, 0, solutions, 'queens');
+  // if (solutions.length === 0){
+  //   solution = new Board({n: n}).rows();
+  // }else{
+  //   solution = JSON.parse(solutions[0])
+  // }
+  for(let matrix of rooksCache[n]){
+    const testBoard = new Board(JSON.parse(matrix));
+    if(!testBoard.hasAnyQueensConflicts){
+      solutions.push(JSON.stringify(testBoard.rows()));
+    }
+  }
   if (solutions.length === 0){
     solution = new Board({n: n}).rows();
   }else{
@@ -59,7 +70,7 @@ window.countNQueensSolutions = function(n) {
 
 
 
-function findPerms (n, depth, solution, conflictType, board){
+function findPerms (n, depth, solution, conflictType, board, availableColumns){
   if (n === 0) {
     solution.push('[]');
     return;
@@ -81,11 +92,30 @@ function findPerms (n, depth, solution, conflictType, board){
       board.togglePiece(depth, i);
     }
   }
-  else{
+  else if(depth === 0){
     for(let i = 0; i < n; i++){
       board.togglePiece(depth, i);
-      findPerms(n, depth + 1, solution, conflictType, board);
+      const availableColumns = [];
+      for(let j = 0; j < n; j++){
+        if(j !== i){
+          availableColumns.push(j);
+        }
+      }
+      findPerms(n, depth + 1, solution, conflictType, board, availableColumns);
       board.togglePiece(depth, i);
+    }
+  }
+  else{
+    for(let i = 0; i < availableColumns.length; i++){
+      board.togglePiece(depth, availableColumns[i]);
+      const remainingColumns = [];
+      for(let j = 0; j < availableColumns.length; j++){
+        if(j !== i){
+          remainingColumns.push(j);
+        }
+      }
+      findPerms(n, depth + 1, solution, conflictType, board, remainingColumns);
+      board.togglePiece(depth, availableColumns[i]);
     }
   }
 }
