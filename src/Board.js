@@ -25,7 +25,11 @@
     },
 
     togglePiece: function(rowIndex, colIndex) {
+      // console.log('toggle is called!!!');
+      // console.log('row: ', rowIndex, ' column: ', colIndex);
+      // console.log('whole row: ', this.get(rowIndex));
       this.get(rowIndex)[colIndex] = + !this.get(rowIndex)[colIndex];
+      // console.log('whole row after change: ', this.get(rowIndex))
       this.trigger('change');
     },
 
@@ -134,7 +138,6 @@
       let rows = this.rows();
       const board = this.rows();
       for(let i = row; i < board.length; i++){
-        console.log(i, colIndex, ': ', board[i][colIndex]);
         if (board[i][colIndex]) count++;
         colIndex++
       }
@@ -165,7 +168,6 @@
       let rows = this.rows();
       const board = this.rows();
       for(let i = row; i < board.length; i++){
-        console.log(i, colIndex, ': ', board[i][colIndex]);
         if (board[i][colIndex]) count++;
         colIndex--
       }
