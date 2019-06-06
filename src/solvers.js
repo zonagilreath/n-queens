@@ -38,16 +38,20 @@ window.countNRooksSolutions = function(n) {
 window.findNQueensSolution = function(n) {
   solutions = [];
   findPerms(n, 0, solutions, 'queens');
-  queensCache = solutions;
-  solution = JSON.parse(solutions[0])
-
+  if (solutions.length === 0){
+    solution = new Board({n: n}).rows();
+  }else{
+    solution = JSON.parse(solutions[0])
+  }
+  queensCache[n] = solutions;
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
   return solution;
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = queensCache.length; //fixme
+  console.log(queensCache);
+  var solutionCount = queensCache[n].length; //fixme
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
@@ -56,6 +60,10 @@ window.countNQueensSolutions = function(n) {
 
 
 function findPerms (n, depth, solution, conflictType, board){
+  if (n === 0) {
+    solution.push('[]');
+    return;
+  }
   if (board === undefined) board = new Board({n: n});
   if(depth === n - 1){
     for(let i = 0; i < n; i++){
