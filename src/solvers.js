@@ -16,7 +16,15 @@
 
 
 window.findNRooksSolution = function(n) {
-  var solution = undefined; //fixme
+  solution = [];
+  findPerms(n, 0, solution);
+  for(let matrix of solution){
+    const newBoard = new Board(matrix);
+    if(!newBoard.hasAnyRooksConflicts()){
+      console.log('hi');
+      return matrix;
+    }
+  }
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
@@ -45,3 +53,25 @@ window.countNQueensSolutions = function(n) {
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
+
+
+
+function findPerms (n, depth, solution){
+  const newBoard = new Board({n: n});
+  if(depth === n - 1){
+    for(let i = 0; i < n; i++){
+      newBoard.togglePiece(depth, i);
+      console.log('in the base case!');
+      solution.push(newBoard.rows());
+      newBoard.togglePiece(depth, i);
+    }
+  }
+  else{
+    for(let i = 0; i < n; i++){
+      newBoard.togglePiece(depth, i);
+      findPerms(n, depth + 1, solution);
+      newBoard.togglePiece(depth, i);
+    }
+  }
+}
+
