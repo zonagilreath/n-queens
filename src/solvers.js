@@ -13,85 +13,86 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
-let rooksCache = {};
-let queensCache = {};
+// window.rooksCache = {0: []};
 
 window.findNRooksSolution = function(n) {
-  solutions = [];
-  findPerms(n, 0, solutions, 'rooks');
-  rooksCache[n] = solutions;
-  solution = JSON.parse(solutions[0])
-
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
-  return solution;
+  let solutionBoard = new Board({n: n});
+  for (let i = 0; i < n; i++){
+    solutionBoard.togglePiece(i, i);
+  }
+  return solutionBoard.rows();
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = rooksCache[n].length; //fixme
-
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return solutionCount;
+  let rookPositions = rookPermuter(n);
+  return rookPositions.length;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  solutions = [];
-  findPerms(n, 0, solutions, 'queens');
-  if (solutions.length === 0){
-    solution = new Board({n: n}).rows();
-  }else{
-    solution = JSON.parse(solutions[0])
+  if (n === 0){
+    return [];
   }
-  queensCache[n] = solutions;
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  if (n === 1){
+    return [[1]];
+  }
+  let solutionBoard = new Board({n: n});
+  let rookPositions = rookPermuter(n);
+  for (let rookBoard of rookPositions){
+    if (queenChecker(rookBoard)){
+      
+      for (let i = 0; i < n; i++){
+        solutionBoard.togglePiece(i, rookBoard[i]);
+      }
+      return solutionBoard.rows();
+    }
+  }
+  return solutionBoard.rows();
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  console.log(queensCache);
-  var solutionCount = queensCache[n].length; //fixme
-
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+  if (n===0){
+    return 1;
+  }
+  let rookPositions = rookPermuter(n);
+  return rookPositions.filter(queenChecker).length;
 };
 
-
-
-function findPerms (n, depth, solution, conflictType, board){
-  if (n === 0) {
-    solution.push('[]');
-    return;
+const rookPermuter = (n, perm, availableColumns) => {
+  let newPerm;
+  let solutions = [];
+  if (!availableColumns){
+    availableColumns = _.range(n);
   }
-  if (board === undefined) board = new Board({n: n});
-  if(depth === n - 1){
-    for(let i = 0; i < n; i++){
-      board.togglePiece(depth, i);
-      let hasConflicts = true;
-      if (conflictType === 'rooks'){
-        hasConflicts = board.hasAnyRooksConflicts();
-      }else if (conflictType === 'queens'){
-        hasConflicts = board.hasAnyQueensConflicts();
-      }
-      if (!hasConflicts){
-        let boardCopy = JSON.stringify(board.rows());
-        solution.push(boardCopy);
-      }
-      board.togglePiece(depth, i);
+  for (let i = 0; i < availableColumns.length; i++){
+    if (!perm){
+      newPerm = new Array(n);
+    }else{
+      newPerm = perm.slice();
+    }
+    let row = n - availableColumns.length;
+    newPerm[row] = availableColumns[i]
+    const remainingColumns = [...availableColumns.slice(0,i), ...availableColumns.slice(i+1)];
+    if (remainingColumns.length){
+      solutions = solutions.concat(rookPermuter(n, newPerm, remainingColumns));
+    }else {
+      solutions.push(newPerm);
     }
   }
-  else{
-    for(let i = 0; i < n; i++){
-      board.togglePiece(depth, i);
-      findPerms(n, depth + 1, solution, conflictType, board);
-      board.togglePiece(depth, i);
+  return solutions;
+};
+
+const queenChecker = (flatArray) => {
+    for (let i = 0; i < flatArray.length - 1; i++){
+        for (let j = i + 1; j < flatArray.length; j++){
+            if (j - i === Math.abs(flatArray[j] - flatArray[i])){
+                return false;
+            }
+        }
     }
-  }
+    return true;
 }
-
-
-
-
 
 
